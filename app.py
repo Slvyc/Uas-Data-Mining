@@ -41,7 +41,7 @@ if option == "Clustering":
 
     # Visualisasi hasil clustering (menggunakan dua fitur utama: x dan y)
     st.markdown("### Visualisasi Hasil Clustering Pada Data Testing")
-    fig, ax = plt.subplots(figsize=(8,6))
+    fig, ax = plt.subplots(figsize=(6,4))  # ukuran lebih kecil
     sns.scatterplot(x='x', y='y', hue='Cluster', data=df, palette='Set1', ax=ax)
     ax.set_title('Clustering Lokasi Gerai Kopi')
     st.pyplot(fig)
@@ -94,7 +94,7 @@ elif option == "Klasifikasi":
     # Confusion Matrix
     st.markdown("### Confusion Matrix")
     cm = confusion_matrix(y, y_pred)
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=(5,3))  # ukuran lebih kecil
     sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", ax=ax)
     ax.set_xlabel("Prediksi")
     ax.set_ylabel("Aktual")
