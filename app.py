@@ -15,47 +15,52 @@ if option == "Clustering":
     st.info("Nama: **Muhammad Daffa Alfharijy**  \nNIM: **22146023**")
     st.markdown("""
     ### Deskripsi Proyek
-    Mengelompokkan lokasi calon gerai kopi berdasarkan karakteristik menggunakan metode **K-Means**.
+    Segmentasi lokasi gerai kopi menggunakan algoritma K-Means untuk menentukan cluster optimal.
     """)
 
     import pandas as pd
     import pickle
     import matplotlib.pyplot as plt
+    import seaborn as sns
+    from sklearn.preprocessing import StandardScaler
 
     # Load data dan model
     df = pd.read_csv("lokasi_gerai_kopi_clean.csv")
+    features = ['x', 'y', 'population_density', 'traffic_flow', 'competitor_count', 'is_commercial']
+    X = df[features]
+
+    # Load scaler dan model
     with open("kmeans_model.pkl", "rb") as f:
         kmeans = pickle.load(f)
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
 
     # Prediksi cluster pada data testing
-    cluster_labels = kmeans.predict(df.drop(columns=[]))
+    cluster_labels = kmeans.predict(X_scaled)
     df['Cluster'] = cluster_labels
 
     # Visualisasi hasil clustering (menggunakan dua fitur utama: x dan y)
     st.markdown("### Visualisasi Hasil Clustering Pada Data Testing")
-    fig, ax = plt.subplots()
-    scatter = ax.scatter(df['x'], df['y'], c=df['Cluster'], cmap='viridis', s=80, alpha=0.7)
-    ax.set_xlabel('x')
-    ax.set_ylabel('y')
-    legend1 = ax.legend(*scatter.legend_elements(), title="Cluster")
-    ax.add_artist(legend1)
+    fig, ax = plt.subplots(figsize=(8,6))
+    sns.scatterplot(x='x', y='y', hue='Cluster', data=df, palette='Set1', ax=ax)
+    ax.set_title('Clustering Lokasi Gerai Kopi')
     st.pyplot(fig)
 
     # Input Data Baru
     st.markdown("### Input Data Baru")
-    input_cols = df.columns[:-1]  # kecuali kolom Cluster
     input_data = []
     col1, col2 = st.columns(2)
-    for idx, col in enumerate(input_cols):
+    for idx, col in enumerate(features):
         if idx % 2 == 0:
-            val = col1.number_input(col, value=float(df[col].mean()))
+            val = col1.number_input(col, value=0.0)
         else:
-            val = col2.number_input(col, value=float(df[col].mean()))
+            val = col2.number_input(col, value=0.0)
         input_data.append(val)
 
     if st.button("Prediksi Cluster"):
-        new_df = pd.DataFrame([input_data], columns=input_cols)
-        cluster_pred = kmeans.predict(new_df)[0]
+        # Scaling input data baru
+        input_scaled = scaler.transform([input_data])
+        cluster_pred = kmeans.predict(input_scaled)[0]
         st.success(f"Data baru masuk ke **Cluster: {cluster_pred}**")
 
 elif option == "Klasifikasi":
@@ -102,9 +107,9 @@ elif option == "Klasifikasi":
     col1, col2 = st.columns(2)
     for idx, col in enumerate(cols):
         if idx % 2 == 0:
-            val = col1.number_input(col, value=float(df[col].mean()))
+            val = col1.number_input(col, value=0.0)
         else:
-            val = col2.number_input(col, value=float(df[col].mean()))
+            val = col2.number_input(col, value=0.0)
         input_data.append(val)
 
     if st.button("Prediksi Diabetes"):
